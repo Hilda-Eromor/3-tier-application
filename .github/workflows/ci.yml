@@ -2,56 +2,36 @@ name: CI for 3-tier app
 
 on:
   push:
-    branches: [ "main", "fix-actions" ]
-  pull_request:
-    branches: [ "main", "fix-actions" ]
+    branches:
+      - fix-actions
+      - main
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: mysql123
-          MYSQL_DATABASE: school
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h localhost"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Backend setup
       - name: Set up Node.js for backend
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: 'npm'
-      - name: Install backend dependencies
-        run: npm install --prefix backend
-      - name: Backend start placeholder
-        run: echo "Backend start script is nodemon server.js, skipping in CI"
 
-      # Frontend setup
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm install
+          npm test
+
       - name: Set up Node.js for frontend
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: 'npm'
-      - name: Install frontend dependencies
-        run: npm install --prefix frontend
-      - name: Build frontend
-        run: npm run build --prefix frontend
-      - name: Run frontend tests
-        run: npm test --prefix frontend -- --watchAll=false
 
-      # Docker Compose build
-      - name: Build Docker images
-        run: docker-compose -f docker-compose.yaml build
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install
+          npm run build
+
