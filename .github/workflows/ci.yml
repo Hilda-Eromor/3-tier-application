@@ -1,38 +1,30 @@
-name: CI for 3-tier app
+name: CI 3-tier-application
 
 on:
   push:
-    branches:
-      - fix-actions
-      - main
+    branches: [ "fix-actions" ]
+  pull_request:
+    branches: [ "fix-actions" ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js for backend
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: 18
 
-       - name: Install and test backend
-        run: |
-          cd backend
-          npm install
-          npm test
+      - name: Install dependencies
+        run: npm install
+        working-directory: backend
 
+      - name: Run tests
+        run: npm test
+        working-directory: backend
 
-      - name: Set up Node.js for frontend
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Install frontend dependencies
-        run: |
-          cd frontend
-          npm install
-          npm run build
 
