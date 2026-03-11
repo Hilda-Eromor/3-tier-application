@@ -10,6 +10,10 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 const db = createPool({
     host: process.env.MYSQL_HOST,       // matches Docker Compose
     user: process.env.MYSQL_USER,
@@ -157,6 +161,12 @@ app.delete('/teacher/:id', async (req, res) => {
     }
 });
 
-app.listen(3500, () => {
-    console.log("listening on Port 3500");
-});
+if (require.main === module) {
+  const PORT = process.env.PORT || 3500;
+  app.listen(PORT, () => {
+    console.log(`listening on Port ${PORT}`);
+  });
+}
+
+module.exports = app; // <-- add this line
+
